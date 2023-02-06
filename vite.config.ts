@@ -16,6 +16,15 @@ export default defineConfig({
         presetWind(),
       ],
       /* options */
+      theme: {
+        colors: {
+          primary: "#C7802D",
+          shader: "#094074",
+          light: {
+            primary: "rgba(255,255,255,.9)",
+          },
+        },
+      },
     }),
   ],
   resolve: {
