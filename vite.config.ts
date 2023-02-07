@@ -65,7 +65,7 @@ export default defineConfig({
       },
       shortcuts: {
         "login-box":
-          "m-auto w-400px h-500px border-white-primary border-1 border-style-solid",
+          "m-auto w-400px border-white-primary border-1 border-style-solid p-4",
       },
     }),
   ],
