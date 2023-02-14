@@ -1,14 +1,11 @@
 import { useMutation } from "@vue/apollo-composable";
-import type { GraphQLError } from "graphql";
 import gql from "graphql-tag";
+import type { MutationLoginArgs, JwtSign } from "./schema";
 
 export const useMutateLogin = () => {
   const { mutate: mutateLogin, loading } = useMutation<
-    {
-      accessToken: string;
-      expiresIn: number;
-    },
-    { input: { account: string; passwordInput: string } }
+    JwtSign,
+    MutationLoginArgs
   >(gql`
     mutation Login($input: LoginInput!) {
       login(input: $input) {
@@ -17,7 +14,7 @@ export const useMutateLogin = () => {
       }
     }
   `);
-  const func = async ({
+  const wrapFunc = async ({
     username,
     password,
   }: {
@@ -33,5 +30,5 @@ export const useMutateLogin = () => {
       return [err as Error, null] as const;
     }
   };
-  return { mutateLogin: func, loading };
+  return { mutateLogin: wrapFunc, loading };
 };

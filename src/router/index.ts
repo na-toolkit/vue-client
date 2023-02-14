@@ -1,21 +1,21 @@
 import { createRouter, createWebHistory } from "vue-router";
-import LayoutLogin from "../layouts/LayoutLogin.vue";
+import LayoutDefault from "../layouts/LayoutDefault.vue";
 
 const router = createRouter({
   history: createWebHistory(import.meta.env.BASE_URL),
   routes: [
     {
       path: "/",
-      name: "home",
-      component: () => import("../views/PageHome.vue"),
-    },
-    {
-      path: "/login",
-      name: "loginRoot",
-      component: LayoutLogin,
+      name: "root",
+      component: LayoutDefault,
       children: [
         {
           path: "",
+          name: "home",
+          component: () => import("../views/PageHome.vue"),
+        },
+        {
+          path: "login",
           name: "login",
           component: () => import("../views/PageLogin.vue"),
         },
