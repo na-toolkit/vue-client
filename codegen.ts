@@ -7,6 +7,9 @@ const config: CodegenConfig = {
   generates: {
     "src/apis/schema.ts": {
       plugins: ["typescript"],
+      config: {
+        scalars: { UnixDate: "number" },
+      },
     },
   },
 };

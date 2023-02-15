@@ -13,14 +13,27 @@ import {
 } from "naive-ui";
 import { ref } from "vue";
 import { ArrowBigRightLine } from "@vicons/tabler";
-import { useMutateLogin } from "../apis/login";
+import { useRouter } from "vue-router";
+import { useMutateLogin } from "@/apis/login";
+import { useUserStore } from "@/stores/user";
 
-const { mutateLogin, loading } = useMutateLogin();
+const router = useRouter();
 const message = useMessage();
+const userStore = useUserStore();
+const { mutate, loading } = useMutateLogin({
+  async onDone(result) {
+    const { accessToken, expiresIn: expiredAt } = result;
+    await userStore.actionLoginSuccess({ accessToken, expiredAt });
+    router.push({ name: "dashboard" });
+  },
+});
 
+// 登入表單
 const formRef = ref<FormInst | null>(null);
 const formValue = ref({
-  username: "",
+  // FIXME:
+  username: "naremloa",
+  // username: "",
   password: "",
 });
 const rules: FormRules = {
@@ -33,20 +46,19 @@ const rules: FormRules = {
     trigger: ["input", "blur"],
   },
 };
+
 const login = async () => {
   try {
     await formRef.value?.validate();
   } catch (err) {
-    console.debug(err);
+    console.debug("login form validate failed:", err);
+    message.error("請按照提示填寫");
     return;
   }
-  const [error, data] = await mutateLogin(formValue.value);
-  if (!error) {
-    message.success(JSON.stringify(data));
-  } else {
-    console.log("error", error);
-    message.error(JSON.stringify(error));
-  }
+  const { username, password } = formValue.value;
+  await mutate({
+    input: { account: username, passwordInput: password },
+  });
 };
 </script>
 <template>
@@ -78,6 +90,7 @@ const login = async () => {
               size="large"
               placeholder="密碼"
               class="mr-4"
+              @keyup.enter="login"
             >
               <template #prefix> > </template>
             </NInput>

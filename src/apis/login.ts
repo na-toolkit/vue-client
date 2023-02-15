@@ -1,12 +1,21 @@
 import { useMutation } from "@vue/apollo-composable";
+import { watch } from "vue";
 import gql from "graphql-tag";
-import type { MutationLoginArgs, JwtSign } from "./schema";
+import type { MutationLoginArgs, Mutation, JwtSign } from "./schema";
+import { useMessage } from "naive-ui";
 
-export const useMutateLogin = () => {
-  const { mutate: mutateLogin, loading } = useMutation<
-    JwtSign,
-    MutationLoginArgs
-  >(gql`
+export const useMutateLogin = (options?: {
+  onDone?: (result: JwtSign) => void;
+}) => {
+  const { onDone } = options || {};
+  const message = useMessage();
+
+  const {
+    mutate,
+    loading,
+    error,
+    onDone: onDoneOrigin,
+  } = useMutation<Pick<Mutation, "login">, MutationLoginArgs>(gql`
     mutation Login($input: LoginInput!) {
       login(input: $input) {
         accessToken
@@ -14,21 +23,21 @@ export const useMutateLogin = () => {
       }
     }
   `);
-  const wrapFunc = async ({
-    username,
-    password,
-  }: {
-    username: string;
-    password: string;
-  }) => {
-    try {
-      const result = await mutateLogin({
-        input: { account: username, passwordInput: password },
-      });
-      return [null, result?.data] as const;
-    } catch (err) {
-      return [err as Error, null] as const;
+
+  onDoneOrigin((result) => {
+    if (typeof onDone !== "function") return;
+    if (result.data) onDone(result.data.login);
+  });
+
+  watch(error, (err) => {
+    if (err) {
+      const messageList = err.graphQLErrors.reduce<string[]>((acc, cur) => {
+        const val = cur.extensions.response?.log || "";
+        if (val) acc.push(val);
+        return acc;
+      }, []);
+      message.error(messageList.join("\n"));
     }
-  };
-  return { mutateLogin: wrapFunc, loading };
+  });
+  return { mutate, loading, error };
 };

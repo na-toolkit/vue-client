@@ -6,6 +6,7 @@ import {
   darkTheme,
   type GlobalThemeOverrides,
 } from "naive-ui";
+
 const themeOverrides: GlobalThemeOverrides = {};
 </script>
 
