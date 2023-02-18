@@ -1,5 +1,6 @@
 <script setup lang="ts">
 import { watch } from "vue";
+import LayoutHeader from "./LayoutHeader.vue";
 import LayoutFooter from "./LayoutFooter.vue";
 import { useUserStore } from "@/stores/user";
 import { checkAuthTokenValid } from "@/utils/checkAuthTokenValid";
@@ -15,7 +16,9 @@ watch(
 );
 </script>
 <template>
-  <article class="text-white-primary text-4">
+  <LayoutHeader v-if="userStore.userTokenValid"></LayoutHeader>
+  <header v-else></header>
+  <article class="text-white-primary text-4 overflow-y-scroll">
     <RouterView></RouterView>
   </article>
   <LayoutFooter></LayoutFooter>

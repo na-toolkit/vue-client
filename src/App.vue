@@ -17,7 +17,9 @@ const themeOverrides: GlobalThemeOverrides = {};
     class="w-full h-full"
   >
     <NMessageProvider>
-      <article class="w-full h-full grid grid-rows-layouts text-white-primary">
+      <article
+        class="w-full h-full text-white-primary grid grid-rows-[60px_minmax(0,1fr)_40px]"
+      >
         <RouterView></RouterView>
       </article>
     </NMessageProvider>

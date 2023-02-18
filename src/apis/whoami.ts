@@ -12,11 +12,12 @@ export const useWhoami = (options?: {
   const init = ref(true);
 
   const {
+    result,
     load,
     refetch,
     loading,
     error,
-    onResult: onResultOrigin,
+    // onResult: onResultOrigin,
   } = useLazyQuery<Pick<Query, "whoami">, never>(
     gql`
       query Whoami {
@@ -33,13 +34,19 @@ export const useWhoami = (options?: {
     { fetchPolicy: "network-only" }
   );
 
-  onResultOrigin((param) => {
-    if (init.value) init.value = false;
-    if (typeof onResult !== "function") return;
-    if (param.loading) return;
-    if (param.errors) return;
-    onResult(param.data.whoami);
-  });
+  if (typeof onResult === "function") {
+    watch(result, (data) => {
+      if (data?.whoami) onResult(data?.whoami);
+    });
+  }
+
+  // onResultOrigin((param) => {
+  //   if (init.value) init.value = false;
+  //   if (typeof onResult !== "function") return;
+  //   if (param.loading) return;
+  //   if (param.errors) return;
+  //   onResult(param.data.whoami);
+  // });
 
   watch(error, (err) => {
     if (err) {
