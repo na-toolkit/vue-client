@@ -1,5 +1,5 @@
 <script setup lang="ts">
-import { ref } from "vue";
+import { ref, defineEmits } from "vue";
 import {
   NInput,
   NForm,
@@ -11,8 +11,29 @@ import {
   type FormRules,
 } from "naive-ui";
 import { useCreateSentence } from "@/apis/sentence";
+import type { Sentence } from "@/types/sentence";
+
+type FormValueSentence = Omit<Sentence, "sentenceUid">;
+
+const emit = defineEmits<{
+  (e: "create", item: Sentence): void;
+}>();
 
 const message = useMessage();
+
+const formRef = ref<FormInst | null>(null);
+const formInit = (): FormValueSentence => ({
+  content: "",
+  note: "",
+  translation: "",
+});
+const formValue = ref<FormValueSentence>(formInit());
+const rules: FormRules = {
+  content: {
+    required: true,
+    trigger: ["input", "blur"],
+  },
+};
 
 const {
   mutate,
@@ -20,24 +41,11 @@ const {
   error: createError,
 } = useCreateSentence({
   onDone(result) {
-    // if (result) message.success("新增成功");
-    // listVariables.value.paginationInfo.currentPage = 1;
-    // listRefetch({ input: listVariables.value });
+    if (result) message.success("新增成功");
+    emit("create", result);
+    formValue.value = formInit();
   },
 });
-
-const formRef = ref<FormInst | null>(null);
-const formValue = ref({
-  content: "",
-  note: "",
-  translation: "",
-});
-const rules: FormRules = {
-  content: {
-    required: true,
-    trigger: ["input", "blur"],
-  },
-};
 
 const create = async () => {
   try {

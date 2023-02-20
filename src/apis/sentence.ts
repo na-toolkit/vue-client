@@ -9,9 +9,10 @@ import type {
   QueryGetSentenceListArgs,
 } from "./schema";
 import { useMessage } from "naive-ui";
+import type { Sentence } from "@/types/sentence";
 
 export const useCreateSentence = (options?: {
-  onDone?: (result: boolean) => void;
+  onDone?: (result: Sentence) => void;
 }) => {
   const { onDone } = options || {};
   const message = useMessage();
@@ -26,7 +27,12 @@ export const useCreateSentence = (options?: {
     MutationCreateSentenceArgs
   >(gql`
     mutation CreateSentence($input: CreateSentenceInput!) {
-      createSentence(input: $input)
+      createSentence(input: $input) {
+        content
+        note
+        sentenceUid
+        translation
+      }
     }
   `);
 

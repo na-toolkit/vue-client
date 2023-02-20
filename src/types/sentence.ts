@@ -1,6 +1,3 @@
-import type { SentenceInList } from "@/apis/schema";
+import type { Sentence as QuerySentence } from "@/apis/schema";
 
-export type Sentence = Pick<
-  SentenceInList,
-  "content" | "note" | "sentenceUid" | "translation"
->;
+export type Sentence = Omit<QuerySentence, "__typename">;
