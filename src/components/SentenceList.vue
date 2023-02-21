@@ -1,6 +1,5 @@
 <script setup lang="ts">
-import { defineProps, withDefaults, toRef, ref } from "vue";
-import BoxCard from "./BoxCard.vue";
+import { defineProps, withDefaults, toRef } from "vue";
 import SentenceItem from "./SentenceItem.vue";
 import { NSkeleton } from "naive-ui";
 import type { Sentence } from "@/types/sentence";
@@ -12,16 +11,23 @@ const props = withDefaults(
     loading: false,
   }
 );
+const emit = defineEmits<{
+  (e: "update", idx: number): void;
+}>();
 
 const list = toRef(props, "list");
 const loading = toRef(props, "loading");
+const triggerUpdate = (idx: number) => {
+  emit("update", idx);
+};
 </script>
 <template>
   <div class="grid gap-8 m-y-4" ref="el">
     <SentenceItem
-      v-for="item in list"
+      v-for="(item, idx) in list"
       :key="item.sentenceUid"
       :item="item"
+      @update="() => triggerUpdate(idx)"
     ></SentenceItem>
     <template v-if="loading">
       <NSkeleton :height="60"></NSkeleton>

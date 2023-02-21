@@ -1,22 +1,30 @@
 <script setup lang="ts">
-import { computed, ref, watch } from "vue";
+import { ref, watch } from "vue";
 import { useInfiniteScroll } from "@vueuse/core";
-import { NButton, NSpin, NIcon, NIconWrapper } from "naive-ui";
-import { useRouter } from "vue-router";
-import { useUserStore } from "@/stores/user";
+import { NButton, NIcon } from "naive-ui";
 import { useGetSentenceList } from "@/apis/sentence";
-import type { SentenceInList } from "@/apis/schema";
-import { EditCircle, PlaylistAdd } from "@vicons/tabler";
+import { PlaylistAdd } from "@vicons/tabler";
 import SentenceCreateBox from "@/components/SentenceCreateBox.vue";
-import BoxCard from "@/components/BoxCard.vue";
+import SentenceEditBox from "@/components/SentenceEditBox.vue";
 import SentenceList from "@/components/SentenceList.vue";
 import type { Sentence } from "@/types/sentence";
 
-type BoxCardType = "create" | "update" | "";
+export type SentenceBoxCardType = "create" | "update" | "";
+type UpdateFormSentence = Sentence & { idx: number | null };
 
-const type = ref<BoxCardType>("");
-const triggerBoxCard = (t: BoxCardType) => (type.value = t);
-const list = ref<SentenceInList[]>([]);
+const updateFormValueInit = () => ({
+  idx: null,
+  sentenceUid: "",
+  content: "",
+  note: "",
+  translation: "",
+});
+const updateFormValue = ref<UpdateFormSentence>(updateFormValueInit());
+
+const type = ref<SentenceBoxCardType>("");
+const triggerBoxCard = (t: SentenceBoxCardType) => (type.value = t);
+
+const list = ref<Sentence[]>([]);
 const total = ref(0);
 const listVariables = ref({
   paginationInfo: {
@@ -58,8 +66,19 @@ useInfiniteScroll(
   },
   { distance: 10 }
 );
+const updateSentence = (idx: number) => {
+  updateFormValue.value = {
+    ...list.value[idx],
+    idx,
+  };
+  triggerBoxCard("update");
+};
 const createSuccess = (item: Sentence) => {
   list.value.splice(0, 0, item);
+};
+const updateSuccess = (item: Sentence & { idx: number | null }) => {
+  const { idx, ...data } = item;
+  if (typeof idx === "number") list.value.splice(idx, 1, data);
 };
 </script>
 <template>
@@ -69,6 +88,7 @@ const createSuccess = (item: Sentence) => {
         class="p-4"
         :list="list"
         :loading="listLoading"
+        @update="updateSentence"
       ></SentenceList>
       <div class="p-t-15 p-r-8">
         <div class="sticky top-15">
@@ -85,9 +105,18 @@ const createSuccess = (item: Sentence) => {
               </template>
             </NButton>
           </div>
-          <BoxCard class="w-50%" v-show="type === 'create'">
-            <SentenceCreateBox @create="createSuccess"></SentenceCreateBox>
-          </BoxCard>
+          <SentenceCreateBox
+            v-show="type === 'create'"
+            @success="createSuccess"
+            @minimize="() => triggerBoxCard('')"
+          ></SentenceCreateBox>
+          <SentenceEditBox
+            v-model:form-value="updateFormValue"
+            :init="updateFormValueInit"
+            v-show="type === 'update'"
+            @success="updateSuccess"
+            @minimize="() => triggerBoxCard('')"
+          ></SentenceEditBox>
         </div>
       </div>
     </div>
