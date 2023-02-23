@@ -7,6 +7,7 @@ import type {
   MutationUpdateSentenceArgs,
   Query,
   QueryGetSentenceListArgs,
+  MutationRemoveSentenceArgs,
 } from "./schema";
 import { useMessage } from "naive-ui";
 import type { Sentence } from "@/types/sentence";
@@ -92,6 +93,44 @@ export const useUpdateSentence = (options?: {
   return { mutate, loading, error };
 };
 
+export const useRemoveSentence = (options?: {
+  onDone?: (result: boolean) => void;
+}) => {
+  const { onDone } = options || {};
+  const message = useMessage();
+
+  const {
+    mutate,
+    loading,
+    error,
+    onDone: onDoneOrigin,
+  } = useMutation<
+    Pick<Mutation, "removeSentence">,
+    MutationRemoveSentenceArgs
+  >(gql`
+    mutation RemoveSentence($sentenceUid: String!) {
+      removeSentence(sentenceUid: $sentenceUid)
+    }
+  `);
+
+  onDoneOrigin((result) => {
+    if (typeof onDone !== "function") return;
+    if (result.data) onDone(result.data.removeSentence);
+  });
+
+  watch(error, (err) => {
+    if (err) {
+      const messageList = err.graphQLErrors.reduce<string[]>((acc, cur) => {
+        const val = cur.extensions.response?.log || "";
+        if (val) acc.push(val);
+        return acc;
+      }, []);
+      message.error(messageList.join("\n"));
+    }
+  });
+  return { mutate, loading, error };
+};
+
 export const useGetSentenceList = (initVariable: QueryGetSentenceListArgs) => {
   const { result, loading, error, fetchMore, refetch } = useQuery<
     Pick<Query, "getSentenceList">,
@@ -114,7 +153,8 @@ export const useGetSentenceList = (initVariable: QueryGetSentenceListArgs) => {
         }
       }
     `,
-    initVariable
+    initVariable,
+    { fetchPolicy: "network-only" }
   );
   return { result, loading, error, fetchMore, refetch };
 };

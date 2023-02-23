@@ -1,8 +1,8 @@
 <script setup lang="ts">
 import { ref, watch } from "vue";
 import { useInfiniteScroll } from "@vueuse/core";
-import { NButton, NIcon } from "naive-ui";
-import { useGetSentenceList } from "@/apis/sentence";
+import { NButton, NIcon, useMessage } from "naive-ui";
+import { useGetSentenceList, useRemoveSentence } from "@/apis/sentence";
 import { PlaylistAdd } from "@vicons/tabler";
 import SentenceCreateBox from "@/components/SentenceCreateBox.vue";
 import SentenceEditBox from "@/components/SentenceEditBox.vue";
@@ -11,6 +11,8 @@ import type { Sentence } from "@/types/sentence";
 
 export type SentenceBoxCardType = "create" | "update" | "";
 type UpdateFormSentence = Sentence & { idx: number | null };
+
+const message = useMessage();
 
 const updateFormValueInit = () => ({
   idx: null,
@@ -41,17 +43,21 @@ const {
 } = useGetSentenceList({
   input: listVariables.value,
 });
-watch(result, (v) => {
-  if (v) {
-    const {
-      data,
-      paginationInfo: { currentPage, total: totalResult },
-    } = v.getSentenceList;
-    total.value = totalResult;
-    if (currentPage !== 1) list.value = [...list.value, ...data];
-    else list.value = [...data];
-  }
-});
+watch(
+  result,
+  (v) => {
+    if (v) {
+      const {
+        data,
+        paginationInfo: { currentPage, total: totalResult },
+      } = v.getSentenceList;
+      total.value = totalResult;
+      if (currentPage !== 1) list.value = [...list.value, ...data];
+      else list.value = [...data];
+    }
+  },
+  { immediate: true }
+);
 
 const scrollEl = ref<HTMLElement | null>(null);
 useInfiniteScroll(
@@ -73,12 +79,24 @@ const updateSentence = (idx: number) => {
   };
   triggerBoxCard("update");
 };
+
 const createSuccess = (item: Sentence) => {
   list.value.splice(0, 0, item);
 };
 const updateSuccess = (item: Sentence & { idx: number | null }) => {
   const { idx, ...data } = item;
   if (typeof idx === "number") list.value.splice(idx, 1, data);
+};
+
+const { mutate, loading } = useRemoveSentence({
+  onDone: () => {
+    message.success("刪除成功");
+  },
+});
+const deleteSentence = async (idx: number) => {
+  const { sentenceUid } = list.value[idx];
+  await mutate({ sentenceUid });
+  list.value.splice(idx, 1);
 };
 </script>
 <template>
@@ -89,6 +107,7 @@ const updateSuccess = (item: Sentence & { idx: number | null }) => {
         :list="list"
         :loading="listLoading"
         @update="updateSentence"
+        @delete="deleteSentence"
       ></SentenceList>
       <div class="p-t-15 p-r-8">
         <div class="sticky top-15">

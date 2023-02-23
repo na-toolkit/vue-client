@@ -13,6 +13,7 @@ const props = withDefaults(
 );
 const emit = defineEmits<{
   (e: "update", idx: number): void;
+  (e: "delete", idx: number): void;
 }>();
 
 const list = toRef(props, "list");
@@ -20,14 +21,18 @@ const loading = toRef(props, "loading");
 const triggerUpdate = (idx: number) => {
   emit("update", idx);
 };
+const triggerDelete = (idx: number) => {
+  emit("delete", idx);
+};
 </script>
 <template>
-  <div class="grid gap-8 m-y-4" ref="el">
+  <div class="grid gap-8 m-y-4 auto-rows-min" ref="el">
     <SentenceItem
       v-for="(item, idx) in list"
       :key="item.sentenceUid"
       :item="item"
       @update="() => triggerUpdate(idx)"
+      @delete="() => triggerDelete(idx)"
     ></SentenceItem>
     <template v-if="loading">
       <NSkeleton :height="60"></NSkeleton>

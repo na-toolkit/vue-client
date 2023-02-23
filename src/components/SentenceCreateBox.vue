@@ -1,5 +1,5 @@
 <script setup lang="ts">
-import { ref, defineEmits } from "vue";
+import { ref } from "vue";
 import { useMessage } from "naive-ui";
 import { useCreateSentence } from "@/apis/sentence";
 import type { Sentence } from "@/types/sentence";

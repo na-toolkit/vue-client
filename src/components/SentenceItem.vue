@@ -1,5 +1,5 @@
 <script setup lang="ts">
-import { defineProps, toRef } from "vue";
+import { toRef } from "vue";
 import { NButton, NIcon } from "naive-ui";
 import { EditCircle, Trash } from "@vicons/tabler";
 import BoxCard from "./BoxCard.vue";
@@ -10,10 +10,14 @@ const item = toRef(props, "item");
 
 const emit = defineEmits<{
   (e: "update"): void;
+  (e: "delete"): void;
 }>();
 
 const triggerUpdate = () => {
   emit("update");
+};
+const triggerDelete = () => {
+  emit("delete");
 };
 </script>
 <template>
@@ -40,6 +44,7 @@ const triggerUpdate = () => {
         :text="true"
         class="w-6 h-6"
         type="error"
+        @click="triggerDelete"
       >
         <template #icon>
           <NIcon size="24"><Trash></Trash></NIcon>
