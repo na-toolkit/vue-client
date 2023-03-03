@@ -20,11 +20,12 @@ COPY . .
 
 RUN yarn build-only
 
-
 ARG COPY_PATH
 
-FROM node:16-alpine AS runner
+COPY ./dist ${COPY_PATH}
 
-WORKDIR ${COPY_PATH}
+# FROM node:16-alpine AS runner
 
-COPY --from=builder /app/dist .
+# WORKDIR ${COPY_PATH}
+
+# COPY --from=builder /app/dist .
