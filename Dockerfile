@@ -22,6 +22,8 @@ RUN yarn build-only
 
 FROM node:16-alpine AS runner
 
+ARG COPY_PATH
+
 RUN echo ${COPY_PATH}
 
 WORKDIR ${COPY_PATH}
