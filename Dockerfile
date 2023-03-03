@@ -26,4 +26,4 @@ RUN echo ${COPY_PATH}
 
 WORKDIR ${COPY_PATH}
 
-COPY --from=builder /app/dist .
+COPY --from=builder /app/dist ${COPY_PATH}
