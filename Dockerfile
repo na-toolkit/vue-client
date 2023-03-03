@@ -23,7 +23,4 @@ RUN yarn build-only
 FROM node:16-alpine AS runner
 WORKDIR ${COPY_PATH}
 
-RUN yarn global add pnpm
-
 COPY --from=builder /app/dist .
-COPY --from=builder /app/.env .
