@@ -11,7 +11,7 @@ import { provideApolloClient } from "@vue/apollo-composable";
 // HTTP connection to the API
 const httpLink = createHttpLink({
   // You should use an absolute URL here
-  uri: "http://localhost:3000/graphql",
+  uri: `${import.meta.env.VITE_API_URL}/graphql`,
 });
 
 const authMiddleware = new ApolloLink((operation, forward) => {
