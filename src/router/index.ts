@@ -33,6 +33,12 @@ const router = createRouter({
           component: () => import("@/views/PageLogin.vue"),
         },
         {
+          path: "register",
+          name: "register",
+          meta: { public: true },
+          component: () => import("@/views/PageRegister.vue"),
+        },
+        {
           path: "dashboard",
           name: "dashboard",
           component: () => import("@/views/PageDashboard.vue"),

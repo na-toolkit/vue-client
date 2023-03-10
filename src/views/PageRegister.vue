@@ -14,30 +14,36 @@ import {
 import { ref } from "vue";
 import { Plus, Login } from "@vicons/tabler";
 import { useRouter } from "vue-router";
-import { useMutateLogin } from "@/apis/login";
+import { useMutationRegister } from "@/apis/login";
 import { useUserStore } from "@/stores/user";
 
 const router = useRouter();
 const message = useMessage();
 const userStore = useUserStore();
-const { mutate, loading } = useMutateLogin({
+const { mutate, loading } = useMutationRegister({
   async onDone(result) {
-    const { accessToken, expiresIn: expiredAt } = result;
-    await userStore.actionLoginSuccess({ accessToken, expiredAt });
-    router.push({ name: "dashboard" });
+    if (result) router.push({ name: "login" });
   },
 });
 
 // 登入表單
 const formRef = ref<FormInst | null>(null);
 const formValue = ref({
-  // FIXME:
-  username: "naremloa",
-  // username: "",
+  username: "",
+  name: "",
+  code: "",
   password: "",
 });
 const rules: FormRules = {
   username: {
+    required: true,
+    trigger: ["input", "blur"],
+  },
+  name: {
+    required: true,
+    trigger: ["input", "blur"],
+  },
+  code: {
     required: true,
     trigger: ["input", "blur"],
   },
@@ -47,7 +53,7 @@ const rules: FormRules = {
   },
 };
 
-const login = async () => {
+const register = async () => {
   try {
     await formRef.value?.validate();
   } catch (err) {
@@ -55,9 +61,9 @@ const login = async () => {
     message.error("請按照提示填寫");
     return;
   }
-  const { username, password } = formValue.value;
+  const { username, name, code, password } = formValue.value;
   await mutate({
-    input: { account: username, passwordInput: password },
+    input: { account: username, name, code, passwordInput: password },
   });
 };
 
@@ -85,6 +91,24 @@ const jumpTo = (name: string) => {
             <template #prefix> > </template>
           </NInput>
         </NFormItem>
+        <NFormItem path="name">
+          <NInput
+            v-model:value="formValue.name"
+            size="large"
+            placeholder="名稱"
+          >
+            <template #prefix> > </template>
+          </NInput>
+        </NFormItem>
+        <NFormItem path="code">
+          <NInput
+            v-model:value="formValue.code"
+            size="large"
+            placeholder="邀請碼"
+          >
+            <template #prefix> > </template>
+          </NInput>
+        </NFormItem>
         <NFormItem path="password">
           <NInputGroup>
             <NInput
@@ -94,7 +118,7 @@ const jumpTo = (name: string) => {
               size="large"
               placeholder="密碼"
               class="mr-4"
-              @keyup.enter="login"
+              @keyup.enter="register"
             >
               <template #prefix> > </template>
             </NInput>
@@ -103,22 +127,22 @@ const jumpTo = (name: string) => {
               type="success"
               size="large"
               class="mr-2"
-              @click="login"
+              @click="register"
             >
               <template #icon>
                 <NSpin v-if="loading" :size="'small'"></NSpin>
-                <NIcon v-else><Login></Login></NIcon>
+                <NIcon v-else><Plus></Plus></NIcon>
               </template>
             </NButton>
             <NButton
               text
               type="success"
               size="large"
-              @click="() => jumpTo('register')"
+              @click="() => jumpTo('login')"
             >
               <template #icon>
                 <NSpin v-if="loading" :size="'small'"></NSpin>
-                <NIcon v-else><Plus></Plus></NIcon>
+                <NIcon v-else><Login></Login></NIcon>
               </template>
             </NButton>
           </NInputGroup>

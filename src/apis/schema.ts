@@ -39,6 +39,8 @@ export enum AccountStatus {
 export type CreateAccountInput = {
   /** 用戶帳號 */
   account: Scalars['String'];
+  /** 邀請碼 */
+  code: Scalars['String'];
   /** 用戶暱稱 */
   name: Scalars['String'];
   /** 用戶密碼 */
