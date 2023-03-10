@@ -141,8 +141,7 @@ const jumpTo = (name: string) => {
               @click="() => jumpTo('login')"
             >
               <template #icon>
-                <NSpin v-if="loading" :size="'small'"></NSpin>
-                <NIcon v-else><Login></Login></NIcon>
+                <NIcon><Login></Login></NIcon>
               </template>
             </NButton>
           </NInputGroup>

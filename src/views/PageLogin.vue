@@ -117,8 +117,7 @@ const jumpTo = (name: string) => {
               @click="() => jumpTo('register')"
             >
               <template #icon>
-                <NSpin v-if="loading" :size="'small'"></NSpin>
-                <NIcon v-else><Plus></Plus></NIcon>
+                <NIcon><Plus></Plus></NIcon>
               </template>
             </NButton>
           </NInputGroup>

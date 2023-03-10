@@ -34,30 +34,40 @@ const listVariables = ref({
     pageSize: 20,
   },
 });
-const {
-  result,
-  loading: listLoading,
-  error: listError,
-  fetchMore,
-  refetch: listRefetch,
-} = useGetSentenceList({
-  input: listVariables.value,
-});
-watch(
-  result,
-  (v) => {
-    if (v) {
-      const {
-        data,
-        paginationInfo: { currentPage, total: totalResult },
-      } = v.getSentenceList;
-      total.value = totalResult;
-      if (currentPage !== 1) list.value = [...list.value, ...data];
-      else list.value = [...data];
-    }
+// const {
+//   result,
+//   loading: listLoading,
+//   error: listError,
+//   fetchMore,
+//   refetch: listRefetch,
+// } = useGetSentenceList({
+//   input: listVariables.value,
+// });
+// watch(
+//   result,
+//   (v) => {
+//     if (v) {
+//       const {
+//         data,
+//         paginationInfo: { currentPage, total: totalResult },
+//       } = v.getSentenceList;
+//       total.value = totalResult;
+//       if (currentPage !== 1) list.value = [...list.value, ...data];
+//       else list.value = [...data];
+//     }
+//   },
+//   { immediate: true }
+// );
+list.value = [
+  {
+    content:
+      "But how does it feel on the flip side when you don’t get any notifications",
+    sentenceUid: "A0k6XKckl7ihvoaeFyl88",
+    translation: "一些中文翻譯",
+    note: "備註",
   },
-  { immediate: true }
-);
+];
+const listLoading = false;
 
 const scrollEl = ref<HTMLElement | null>(null);
 useInfiniteScroll(

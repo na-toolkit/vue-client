@@ -62,6 +62,9 @@ export default defineConfig({
         gridTemplateRow: {
           layouts: "minmax(0, 1fr) 40px",
         },
+        boxShadow: {
+          word: "var(--un-shadow-inset) 0 0px 2px 0 var(--un-shadow-color, rgba(0,0,0,0.1)),var(--un-shadow-inset) 0 0px 0px 0px var(--un-shadow-color, rgba(0,0,0,0.1));",
+        },
       },
       shortcuts: {
         "login-box":
