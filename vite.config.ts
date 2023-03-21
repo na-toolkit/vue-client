@@ -16,6 +16,7 @@ export default defineConfig({
         presetWind(),
       ],
       /* options */
+      safelist: ["cursor-pointer"],
       theme: {
         colors: {
           black: {

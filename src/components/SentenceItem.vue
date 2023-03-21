@@ -1,7 +1,7 @@
 <script setup lang="ts">
 import { toRef, computed, ref } from "vue";
 import { NButton, NIcon, NDivider } from "naive-ui";
-import { EditCircle, Trash } from "@vicons/tabler";
+import { EditCircle, Trash, ChevronDown } from "@vicons/tabler";
 import BoxCard from "./BoxCard.vue";
 import type { Sentence } from "@/types/sentence";
 
@@ -42,65 +42,87 @@ const triggerNote = () => {
 };
 </script>
 <template>
-  <BoxCard class="flex cursor-pointer" @click="triggerNote">
-    <div class="flex-grow-1">
-      <div v-for="list in sentenceList" :key="list.key" class="flex flex-wrap">
-        <span
-          v-for="sentence in list.sentence"
-          :key="sentence.key"
-          class="px-1px mx-1px sm:mx-2px cursor-pointer rounded ease-in-out hover:shadow-word hover:shadow-current"
-          :class="{
-            'shadow-word': mark.includes(sentence.key),
-            'shadow-current': mark.includes(sentence.key),
-          }"
-          @click.stop="() => markWord(sentence.key)"
+  <BoxCard :class="{ 'cursor-pointer': item.note }" @click="triggerNote">
+    <div class="flex">
+      <div class="flex-grow-1">
+        <div
+          v-for="list in sentenceList"
+          :key="list.key"
+          class="flex flex-wrap"
         >
-          {{ sentence.word }}
-        </span>
-      </div>
-      <div>{{ item.translation }}</div>
-      <div v-if="item.note">
-        <NDivider dashed>NOTE</NDivider>
-        <div class="whitespace-pre-wrap text-white-mute">
-          {{ item.note }}
+          <span
+            v-for="sentence in list.sentence"
+            :key="sentence.key"
+            class="px-1px mx-1px sm:mx-2px cursor-pointer rounded ease-in-out hover:shadow-word hover:shadow-current"
+            :class="{
+              'shadow-word': mark.includes(sentence.key),
+              'shadow-current': mark.includes(sentence.key),
+            }"
+            @click.stop="() => markWord(sentence.key)"
+          >
+            {{ sentence.word }}
+          </span>
+        </div>
+        <div>{{ item.translation }}</div>
+        <div
+          class="overflow-hidden transition-max-height duration-300 ease-in-out"
+          v-if="item.note"
+          :style="{
+            maxHeight: showNote ? '500px' : '0',
+          }"
+        >
+          <NDivider dashed>NOTE</NDivider>
+          <div class="whitespace-pre-wrap text-white-mute">
+            {{ item.note }}
+          </div>
         </div>
       </div>
+      <div class="grid auto-rows-min gap-2">
+        <NButton
+          :circle="true"
+          :size="'large'"
+          :text="true"
+          class="w-6 h-6 sm:hidden"
+          @click="() => triggerUpdate(true)"
+        >
+          <template #icon>
+            <NIcon size="24"><EditCircle></EditCircle></NIcon>
+          </template>
+        </NButton>
+        <NButton
+          :circle="true"
+          :size="'large'"
+          :text="true"
+          class="w-6 h-6 hidden sm:inline-flex"
+          @click="() => triggerUpdate(false)"
+        >
+          <template #icon>
+            <NIcon size="24"><EditCircle></EditCircle></NIcon>
+          </template>
+        </NButton>
+        <NButton
+          :circle="true"
+          :size="'large'"
+          :text="true"
+          class="w-6 h-6"
+          type="error"
+          @click="triggerDelete"
+        >
+          <template #icon>
+            <NIcon size="24"><Trash></Trash></NIcon>
+          </template>
+        </NButton>
+      </div>
     </div>
-    <div class="grid auto-rows-min gap-2">
-      <NButton
-        :circle="true"
-        :size="'large'"
-        :text="true"
-        class="w-6 h-6 sm:hidden"
-        @click="() => triggerUpdate(true)"
-      >
-        <template #icon>
-          <NIcon size="24"><EditCircle></EditCircle></NIcon>
-        </template>
-      </NButton>
-      <NButton
-        :circle="true"
-        :size="'large'"
-        :text="true"
-        class="w-6 h-6 hidden sm:inline-flex"
-        @click="() => triggerUpdate(false)"
-      >
-        <template #icon>
-          <NIcon size="24"><EditCircle></EditCircle></NIcon>
-        </template>
-      </NButton>
-      <NButton
-        :circle="true"
-        :size="'large'"
-        :text="true"
-        class="w-6 h-6"
-        type="error"
-        @click="triggerDelete"
-      >
-        <template #icon>
-          <NIcon size="24"><Trash></Trash></NIcon>
-        </template>
-      </NButton>
+    <div
+      v-if="item.note"
+      class="flex justify-center transition-opacity duration-300 ease-in-out delay-75 mb--.75rem"
+      :style="{
+        visibility: showNote ? 'hidden' : 'visible',
+        opacity: showNote ? 0 : 1,
+      }"
+    >
+      <NIcon><ChevronDown></ChevronDown></NIcon>
     </div>
   </BoxCard>
 </template>
