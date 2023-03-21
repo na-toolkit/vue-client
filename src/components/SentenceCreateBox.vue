@@ -1,5 +1,5 @@
 <script setup lang="ts">
-import { ref } from "vue";
+import { ref, toRef } from "vue";
 import { useMessage } from "naive-ui";
 import { useCreateSentence } from "@/apis/sentence";
 import type { Sentence } from "@/types/sentence";
@@ -8,9 +8,15 @@ import BoxCard from "./BoxCard.vue";
 
 const message = useMessage();
 
-const props = defineProps<{
-  minimize?: () => void;
-}>();
+const props = withDefaults(
+  defineProps<{
+    minimize?: () => void;
+    border?: boolean;
+  }>(),
+  {
+    border: true,
+  }
+);
 const emit = defineEmits<{
   (e: "success", item: Sentence): void;
   (e: "minimize"): void;
@@ -48,13 +54,16 @@ const minimize = () => {
     props.minimize();
   } else emit("minimize");
 };
+
+const border = toRef(props, "border");
 </script>
 <template>
-  <BoxCard class="w-50%">
+  <BoxCard :border="border" class="max-w-500px">
     <SentenceForm
       v-model:form-value="formValue"
       :loading="createLoading"
       label="新增"
+      :show-minimize="!!props.minimize"
       @submit="() => submit()"
       @minimize="minimize"
     ></SentenceForm>

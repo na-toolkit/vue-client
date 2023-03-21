@@ -12,14 +12,14 @@ const props = withDefaults(
   }
 );
 const emit = defineEmits<{
-  (e: "update", idx: number): void;
+  (e: "update", idx: number, modal: boolean): void;
   (e: "delete", idx: number): void;
 }>();
 
 const list = toRef(props, "list");
 const loading = toRef(props, "loading");
-const triggerUpdate = (idx: number) => {
-  emit("update", idx);
+const triggerUpdate = (modal: boolean, idx: number) => {
+  emit("update", idx, modal);
 };
 const triggerDelete = (idx: number) => {
   emit("delete", idx);
@@ -31,7 +31,7 @@ const triggerDelete = (idx: number) => {
       v-for="(item, idx) in list"
       :key="item.sentenceUid"
       :item="item"
-      @update="() => triggerUpdate(idx)"
+      @update="(modal) => triggerUpdate(modal, idx)"
       @delete="() => triggerDelete(idx)"
     ></SentenceItem>
     <template v-if="loading">

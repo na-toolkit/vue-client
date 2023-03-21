@@ -8,11 +8,17 @@ import BoxCard from "./BoxCard.vue";
 
 type FormSentence = Sentence & { idx: number | null };
 const message = useMessage();
-const props = defineProps<{
-  init: () => FormSentence;
-  formValue: FormSentence;
-  minimize?: () => void;
-}>();
+const props = withDefaults(
+  defineProps<{
+    init: () => FormSentence;
+    formValue: FormSentence;
+    minimize?: () => void;
+    border?: boolean;
+  }>(),
+  {
+    border: true,
+  }
+);
 const emit = defineEmits<{
   (e: "update:formValue", item: FormSentence): void;
   (e: "success", item: FormSentence): void;
@@ -51,9 +57,11 @@ const minimize = () => {
     props.minimize();
   } else emit("minimize");
 };
+
+const border = toRef(props, "border");
 </script>
 <template>
-  <BoxCard class="w-50%">
+  <BoxCard :border="border" class="max-w-500px">
     <SentenceForm
       :form-value="formValue"
       @update:form-value="
@@ -61,6 +69,7 @@ const minimize = () => {
       "
       :loading="updateLoading"
       label="更新"
+      :show-minimize="!!props.minimize"
       @submit="() => submit()"
       @minimize="minimize"
     ></SentenceForm>

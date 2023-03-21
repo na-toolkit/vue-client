@@ -27,7 +27,7 @@ export default defineConfig({
           white: {
             primary: "#ffffff",
             soft: "#f9f9f9",
-            mute: "#f1f1f1",
+            mute: "#ffffffb3",
           },
           indigo: {
             primary: "#213547",

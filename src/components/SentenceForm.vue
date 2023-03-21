@@ -16,11 +16,17 @@ import { ArrowsDiagonalMinimize2 } from "@vicons/tabler";
 
 type FormSentence = Omit<Sentence, "sentenceUid">;
 
-const props = defineProps<{
-  loading: boolean;
-  label: string;
-  formValue: FormSentence;
-}>();
+const props = withDefaults(
+  defineProps<{
+    loading: boolean;
+    label: string;
+    formValue: FormSentence;
+    showMinimize?: boolean;
+  }>(),
+  {
+    showMinimize: false,
+  }
+);
 const emit = defineEmits<{
   (e: "submit"): void;
   (e: "minimize"): void;
@@ -48,10 +54,13 @@ const submit = async () => {
   }
   emit("submit");
 };
+
+const showMinimize = toRef(props, "showMinimize");
 </script>
 <template>
   <div class="flex flex-col items-end">
     <NButton
+      v-if="showMinimize"
       class="m-b-2 m-t--2"
       :circle="true"
       :size="'large'"
@@ -73,6 +82,8 @@ const submit = async () => {
       <NFormItem path="content">
         <NInput
           :value="formValue.content"
+          type="textarea"
+          :autosize="{ minRows: 1 }"
           @update:value="
             (v) => emit('update:formValue', { ...formValue, content: v })
           "
@@ -84,6 +95,8 @@ const submit = async () => {
       <NFormItem path="translation">
         <NInput
           :value="formValue.translation"
+          type="textarea"
+          :autosize="{ minRows: 1 }"
           @update:value="
             (v) => emit('update:formValue', { ...formValue, translation: v })
           "
@@ -95,6 +108,8 @@ const submit = async () => {
       <NFormItem path="note">
         <NInput
           :value="formValue.note"
+          type="textarea"
+          :autosize="{ minRows: 1 }"
           @update:value="
             (v) => emit('update:formValue', { ...formValue, note: v })
           "

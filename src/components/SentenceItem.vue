@@ -1,16 +1,19 @@
 <script setup lang="ts">
 import { toRef, computed, ref } from "vue";
-import { NButton, NIcon } from "naive-ui";
+import { NButton, NIcon, NDivider } from "naive-ui";
 import { EditCircle, Trash } from "@vicons/tabler";
 import BoxCard from "./BoxCard.vue";
 import type { Sentence } from "@/types/sentence";
 
 const props = defineProps<{ item: Sentence }>();
 const item = toRef(props, "item");
-const wordList = computed(() =>
-  item.value.content.split(" ").map((v, idx) => ({
-    key: `${item.value.sentenceUid}-${idx}`,
-    word: v,
+const sentenceList = computed(() =>
+  item.value.content.split("\n").map((c, cIdx) => ({
+    key: `${item.value.sentenceUid}-${cIdx}`,
+    sentence: c.split(" ").map((v, vIdx) => ({
+      key: `${item.value.sentenceUid}-${cIdx}-${vIdx}`,
+      word: v,
+    })),
   }))
 );
 const mark = ref<string[]>([]);
@@ -22,43 +25,65 @@ const markWord = (key: string) => {
 };
 
 const emit = defineEmits<{
-  (e: "update"): void;
+  (e: "update", modal: boolean): void;
   (e: "delete"): void;
 }>();
 
-const triggerUpdate = () => {
-  emit("update");
+const triggerUpdate = (modal: boolean) => {
+  emit("update", modal);
 };
 const triggerDelete = () => {
   emit("delete");
 };
+
+const showNote = ref(false);
+const triggerNote = () => {
+  if (item.value.note) showNote.value = !showNote.value;
+};
 </script>
 <template>
-  <BoxCard class="flex">
+  <BoxCard class="flex cursor-pointer" @click="triggerNote">
     <div class="flex-grow-1">
-      <div>
+      <div v-for="list in sentenceList" :key="list.key" class="flex flex-wrap">
         <span
-          v-for="word in wordList"
-          :key="word.key"
-          class="px-1px mx-2px cursor-pointer rounded text-xl ease-in-out hover:shadow-word hover:shadow-current"
+          v-for="sentence in list.sentence"
+          :key="sentence.key"
+          class="px-1px mx-1px sm:mx-2px cursor-pointer rounded ease-in-out hover:shadow-word hover:shadow-current"
           :class="{
-            'shadow-word': mark.includes(word.key),
-            'shadow-current': mark.includes(word.key),
+            'shadow-word': mark.includes(sentence.key),
+            'shadow-current': mark.includes(sentence.key),
           }"
-          @click="() => markWord(word.key)"
+          @click.stop="() => markWord(sentence.key)"
         >
-          {{ word.word }}
+          {{ sentence.word }}
         </span>
       </div>
       <div>{{ item.translation }}</div>
+      <div v-if="item.note">
+        <NDivider dashed>NOTE</NDivider>
+        <div class="whitespace-pre-wrap text-white-mute">
+          {{ item.note }}
+        </div>
+      </div>
     </div>
     <div class="grid auto-rows-min gap-2">
       <NButton
         :circle="true"
         :size="'large'"
         :text="true"
-        class="w-6 h-6"
-        @click="triggerUpdate"
+        class="w-6 h-6 sm:hidden"
+        @click="() => triggerUpdate(true)"
+      >
+        <template #icon>
+          <NIcon size="24"><EditCircle></EditCircle></NIcon>
+        </template>
+      </NButton>
+      <NButton
+        :circle="true"
+        :size="'large'"
+        :text="true"
+        class="w-6 h-6 hidden sm:inline-flex"
+        @click="() => triggerUpdate(false)"
       >
         <template #icon>
           <NIcon size="24"><EditCircle></EditCircle></NIcon>
