@@ -1,9 +1,12 @@
 <script setup lang="ts">
 import { toRef, computed, ref } from "vue";
 import { NButton, NIcon, NDivider } from "naive-ui";
-import { EditCircle, Trash, ChevronDown } from "@vicons/tabler";
+import { EditCircle, Trash, ChevronDown, Copy } from "@vicons/tabler";
 import BoxCard from "./BoxCard.vue";
 import type { Sentence } from "@/types/sentence";
+import { useMessage } from "naive-ui";
+
+const message = useMessage();
 
 const props = defineProps<{ item: Sentence }>();
 const item = toRef(props, "item");
@@ -14,6 +17,7 @@ const sentenceList = computed(() =>
       key: `${item.value.sentenceUid}-${cIdx}-${vIdx}`,
       word: v,
     })),
+    copy: c,
   }))
 );
 const mark = ref<string[]>([]);
@@ -40,6 +44,15 @@ const showNote = ref(false);
 const triggerNote = () => {
   if (item.value.note) showNote.value = !showNote.value;
 };
+
+const copy = async (sentence: string) => {
+  try {
+    await navigator.clipboard.writeText(sentence);
+    message.success("複製成功");
+  } catch (err) {
+    message.error(`複製失敗: ${(err as Error).message}`);
+  }
+};
 </script>
 <template>
   <BoxCard :class="{ 'cursor-pointer': item.note }" @click="triggerNote">
@@ -48,7 +61,7 @@ const triggerNote = () => {
         <div
           v-for="list in sentenceList"
           :key="list.key"
-          class="flex flex-wrap"
+          class="flex flex-wrap items-center"
         >
           <span
             v-for="sentence in list.sentence"
@@ -62,6 +75,9 @@ const triggerNote = () => {
           >
             {{ sentence.word }}
           </span>
+          <NIcon class="cursor-pointer" @click.stop="() => copy(list.copy)"
+            ><Copy></Copy
+          ></NIcon>
         </div>
         <div>{{ item.translation }}</div>
         <div

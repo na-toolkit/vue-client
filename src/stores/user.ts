@@ -1,9 +1,16 @@
 import { defineStore } from "pinia";
 import { useLocalStorage } from "@vueuse/core";
-import { computed, ref, watch } from "vue";
+import { computed, ref } from "vue";
 import { AccountStatus } from "@/apis/schema";
-import { useWhoami } from "@/apis/whoami";
 import { checkAuthTokenValid } from "@/utils/checkAuthTokenValid";
+
+type UserInfo = {
+  account: string;
+  accountUid: string;
+  name: string;
+  profile: string;
+  status: AccountStatus;
+};
 
 export interface UserAuthStore {
   accessToken: string;
@@ -14,7 +21,7 @@ const genInitUserAuth = (): UserAuthStore => ({
   accessToken: "",
   expiredAt: null,
 });
-const genInitUserInfo = () => ({
+const genInitUserInfo = (): UserInfo => ({
   account: "",
   accountUid: "",
   name: "",
@@ -27,12 +34,9 @@ export const useUserStore = defineStore("user", () => {
   const info = ref(genInitUserInfo());
   const userTokenValid = computed(() => checkAuthTokenValid(auth.value));
 
-  const { query, loading: infoLoading } = useWhoami({
-    onResult(params) {
-      const { account, accountUid, name, profile, status } = params;
-      info.value = { account, accountUid, name, profile, status };
-    },
-  });
+  const actionUpdateInfo = (data: UserInfo) => {
+    info.value = data;
+  };
 
   const actionLoginSuccess = async (params: UserAuthStore) => {
     const { accessToken, expiredAt } = params;
@@ -46,10 +50,9 @@ export const useUserStore = defineStore("user", () => {
   return {
     auth,
     info,
-    infoLoading,
-    infoQuery: query,
     userTokenValid,
     actionLoginSuccess,
     actionLogout,
+    actionUpdateInfo,
   };
 });
