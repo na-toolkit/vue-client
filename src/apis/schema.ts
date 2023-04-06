@@ -150,6 +150,8 @@ export type QueryGetSentenceListArgs = {
 };
 
 export type SearchSentenceWithPaginationInput = {
+  /** 關鍵字 */
+  keyword?: InputMaybe<Scalars['String']>;
   /** 分頁資訊 */
   paginationInfo: PaginationInput;
 };

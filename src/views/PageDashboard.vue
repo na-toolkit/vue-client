@@ -1,9 +1,16 @@
 <script setup lang="ts">
 import { ref, watch } from "vue";
 import { useInfiniteScroll } from "@vueuse/core";
-import { NButton, NIcon, useMessage, NModal } from "naive-ui";
+import {
+  NButton,
+  NIcon,
+  useMessage,
+  NModal,
+  NInput,
+  NInputGroup,
+} from "naive-ui";
 import { useGetSentenceList, useRemoveSentence } from "@/apis/sentence";
-import { PlaylistAdd, Plus } from "@vicons/tabler";
+import { PlaylistAdd, Plus, Search } from "@vicons/tabler";
 import SentenceCreateBox from "@/components/SentenceCreateBox.vue";
 import SentenceEditBox from "@/components/SentenceEditBox.vue";
 import SentenceList from "@/components/SentenceList.vue";
@@ -32,6 +39,7 @@ const triggerBoxCard = (t: SentenceBoxCardType, modal: boolean) => {
 const list = ref<Sentence[]>([]);
 const total = ref(0);
 const listVariables = ref({
+  keyword: "",
   paginationInfo: {
     currentPage: 1,
     pageSize: 20,
@@ -113,6 +121,15 @@ const deleteSentence = async (idx: number) => {
 };
 
 const showModal = ref(false);
+
+const keyword = ref("");
+const searchWithKeyword = () => {
+  if (keyword.value !== listVariables.value.keyword) {
+    list.value = [];
+    listVariables.value.keyword = keyword.value;
+    listVariables.value.paginationInfo.currentPage = 1;
+  }
+};
 </script>
 <template>
   <section class="w-100% h-100% overflow-y-scroll" ref="scrollEl">
@@ -130,8 +147,19 @@ const showModal = ref(false);
         @update="updateSentence"
         @delete="deleteSentence"
       ></SentenceList>
-      <div class="p-t-15 p-r-8 hidden sm:block">
-        <div class="sticky top-15">
+      <div class="p-t-5 p-r-8 hidden sm:block">
+        <div class="sticky top-5">
+          <NInputGroup>
+            <NInput
+              v-model:value="keyword"
+              style="width: 40%"
+              placeholder="篩選內容"
+              @keyup.enter="searchWithKeyword"
+            ></NInput>
+            <NButton type="primary" ghost @click="searchWithKeyword"
+              ><NIcon><Search></Search></NIcon
+            ></NButton>
+          </NInputGroup>
           <div class="m-b-4">
             <NButton
               :circle="true"

@@ -34,6 +34,7 @@ const triggerDelete = (idx: number) => {
       @update="(modal) => triggerUpdate(modal, idx)"
       @delete="() => triggerDelete(idx)"
     ></SentenceItem>
+    <div v-if="list.length === 0 && !loading">暫無資料</div>
     <template v-if="loading">
       <NSkeleton :height="60"></NSkeleton>
       <NSkeleton :height="60" width="90%"></NSkeleton>
