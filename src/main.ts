@@ -6,7 +6,7 @@ import App from "./App.vue";
 import router from "./router";
 
 import "@unocss/reset/normalize.css";
-import "uno.css";
+import "virtual:uno.css";
 import "./assets/main.css";
 
 import { apolloClient } from "./apollo-client";

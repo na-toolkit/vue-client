@@ -132,10 +132,10 @@ const searchWithKeyword = () => {
 };
 </script>
 <template>
-  <section class="w-100% h-100% overflow-y-scroll" ref="scrollEl">
+  <section class="h-100% w-100% overflow-y-scroll" ref="scrollEl">
     <div class="sm:grid sm:grid-cols-[minmax(0,3fr)_minmax(0,2fr)] sm:gap-4">
       <div
-        class="mx-4 mt-4 p-2 border-1 border-gray-dark-1 border-style-solid flex items-center justify-center sm:hidden"
+        class="mx-4 mt-4 flex items-center justify-center border-1 border-gray-dark-1 border-style-solid p-2 sm:hidden"
         @click="() => triggerBoxCard('create', true)"
       >
         <NIcon size="30"><Plus></Plus></NIcon>
@@ -147,7 +147,7 @@ const searchWithKeyword = () => {
         @update="updateSentence"
         @delete="deleteSentence"
       ></SentenceList>
-      <div class="p-t-5 p-r-8 hidden sm:block">
+      <div class="hidden p-r-8 p-t-5 sm:block">
         <div class="sticky top-5">
           <NInputGroup>
             <NInput
@@ -165,7 +165,7 @@ const searchWithKeyword = () => {
               :circle="true"
               :size="'large'"
               :text="true"
-              class="w-10 h-10"
+              class="h-10 w-10"
               @click="() => triggerBoxCard('create', false)"
             >
               <template #icon>

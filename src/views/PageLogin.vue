@@ -66,7 +66,7 @@ const jumpTo = (name: string) => {
 };
 </script>
 <template>
-  <section class="h-full w-full grid">
+  <section class="grid h-full w-full">
     <div class="login-box">
       <NForm
         ref="formRef"
