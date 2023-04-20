@@ -1,11 +1,14 @@
 <script setup lang="ts">
 import { defineProps, withDefaults, toRefs, ref, watch, computed } from "vue";
 import { useInfiniteScroll } from "@vueuse/core";
-import SentenceItem from "./SentenceItem.vue";
-import { NSkeleton } from "naive-ui";
+import SentenceItem from "../SentenceItem.vue";
+import { NSkeleton, useMessage } from "naive-ui";
 import type { Sentence } from "@/types/sentence";
-import { useGetSentenceList } from "@/apis/sentence";
+import { useGetSentenceList, useRemoveSentence } from "@/apis/sentence";
 import { throttle } from "lodash-es";
+import { useSentenceStore } from "@/stores/sentence";
+
+const message = useMessage();
 
 const props = withDefaults(
   defineProps<{ list: Sentence[]; loading: boolean }>(),
@@ -15,13 +18,13 @@ const props = withDefaults(
   }
 );
 const emit = defineEmits<{
-  (e: "update", idx: number, modal: boolean): void;
-  (e: "delete", idx: number): void;
   (e: "update:list", data: Sentence[]): void;
   (e: "update:loading", data: boolean): void;
 }>();
 
 const { list, loading } = toRefs(props);
+
+const sentenceStore = useSentenceStore();
 
 const total = ref(0);
 const listVariables = ref({
@@ -75,11 +78,26 @@ useInfiniteScroll(
   { distance: 200 }
 );
 
-const triggerUpdate = (modal: boolean, idx: number) => {
-  emit("update", idx, modal);
+const triggerUpdate = (idx: number) => {
+  sentenceStore.openUpdateModal({
+    ...list.value[idx],
+    idx,
+  });
 };
-const triggerDelete = (idx: number) => {
-  emit("delete", idx);
+
+const { mutate: delSentenceReq } = useRemoveSentence({
+  onDone: () => {
+    message.success("刪除成功");
+  },
+});
+
+const deleteSentence = async (idx: number) => {
+  const { sentenceUid } = list.value[idx];
+  await delSentenceReq({ sentenceUid });
+  emit("update:list", [
+    ...list.value.slice(0, idx),
+    ...list.value.slice(idx + 1, -1),
+  ]);
 };
 </script>
 <template>
@@ -89,8 +107,8 @@ const triggerDelete = (idx: number) => {
         v-for="(item, idx) in list"
         :key="item.sentenceUid"
         :item="item"
-        @update="(modal) => triggerUpdate(modal, idx)"
-        @delete="() => triggerDelete(idx)"
+        @update-with-modal="() => triggerUpdate(idx)"
+        @delete="() => deleteSentence(idx)"
       ></SentenceItem>
       <div v-if="list.length === 0 && !loading">暫無資料</div>
       <div v-if="loading" class="flex flex-col gap-4">

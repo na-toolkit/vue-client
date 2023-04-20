@@ -1,18 +1,18 @@
 <script setup lang="ts">
-import { ref, toRef } from "vue";
+import { ref, toRefs } from "vue";
 import { useMessage } from "naive-ui";
 import SentenceForm from "./SentenceForm.vue";
 import { useUpdateSentence } from "@/apis/sentence";
 import type { Sentence } from "@/types/sentence";
 import BoxCard from "./BoxCard.vue";
 
-type FormSentence = Sentence & { idx: number | null };
+type FormSentenceWithIdx = Sentence & { idx: number | null };
 const message = useMessage();
+
 const props = withDefaults(
   defineProps<{
-    init: () => FormSentence;
-    formValue: FormSentence;
-    minimize?: () => void;
+    init: () => FormSentenceWithIdx;
+    formValue: FormSentenceWithIdx;
     border?: boolean;
   }>(),
   {
@@ -20,29 +20,25 @@ const props = withDefaults(
   }
 );
 const emit = defineEmits<{
-  (e: "update:formValue", item: FormSentence): void;
-  (e: "success", item: FormSentence): void;
-  (e: "minimize"): void;
+  (e: "update:formValue", item: FormSentenceWithIdx): void;
+  (e: "success", item: FormSentenceWithIdx): void;
 }>();
 
-const formValue = toRef(props, "formValue");
+const { formValue, border } = toRefs(props);
 
-const {
-  mutate,
-  loading: updateLoading,
-  error,
-} = useUpdateSentence({
-  onDone(result) {
-    if (result) message.success("更新成功");
-    if (typeof formValue.value.idx === "number") {
-      emit("success", formValue.value);
-    }
-  },
-});
+const { mutate: mutateUpdateSentence, loading: updateLoading } =
+  useUpdateSentence({
+    onDone(result) {
+      if (result) {
+        emit("success", formValue.value);
+        message.success("更新成功");
+      }
+    },
+  });
 
 const submit = async () => {
   const { sentenceUid, content, note, translation } = formValue.value;
-  await mutate({
+  await mutateUpdateSentence({
     input: {
       sentenceUid,
       content,
@@ -51,14 +47,6 @@ const submit = async () => {
     },
   });
 };
-const minimize = () => {
-  emit("update:formValue", props.init());
-  if (props.minimize) {
-    props.minimize();
-  } else emit("minimize");
-};
-
-const border = toRef(props, "border");
 </script>
 <template>
   <BoxCard :border="border" class="max-w-500px">
@@ -69,9 +57,7 @@ const border = toRef(props, "border");
       "
       :loading="updateLoading"
       label="更新"
-      :show-minimize="!!props.minimize"
-      @submit="() => submit()"
-      @minimize="minimize"
+      @submit="submit"
     ></SentenceForm>
   </BoxCard>
 </template>

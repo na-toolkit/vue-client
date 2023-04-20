@@ -13,70 +13,69 @@ import { useGetSentenceList, useRemoveSentence } from "@/apis/sentence";
 import { PlaylistAdd, Search } from "@vicons/tabler";
 import SentenceCreateBox from "@/components/SentenceCreateBox.vue";
 import SentenceEditBox from "@/components/SentenceEditBox.vue";
-import SentenceList from "@/components/SentenceList.vue";
+import SentenceList from "@/components/sentence/SentenceList.vue";
 import type { Sentence } from "@/types/sentence";
-
-export type SentenceBoxCardType = "create" | "update" | "";
-type UpdateFormSentence = Sentence & { idx: number | null };
+import { useSentenceStore } from "@/stores/sentence";
+import { storeToRefs } from "pinia";
 
 const message = useMessage();
 
-const updateFormValueInit = () => ({
-  idx: null,
-  sentenceUid: "",
-  content: "",
-  note: "",
-  translation: "",
-});
-const updateFormValue = ref<UpdateFormSentence>(updateFormValueInit());
+const sentenceStore = useSentenceStore();
+const { updateFormValue, showModal, modalType } = storeToRefs(sentenceStore);
 
-const type = ref<SentenceBoxCardType>("");
-const triggerBoxCard = (t: SentenceBoxCardType, modal: boolean) => {
-  type.value = t;
-  if (modal) showModal.value = !showModal.value;
-};
+// const updateFormValueInit = () => ({
+//   idx: null,
+//   sentenceUid: "",
+//   content: "",
+//   note: "",
+//   translation: "",
+// });
+// const updateFormValue = ref<UpdateFormSentence>(updateFormValueInit());
+
+// const type = ref<SentenceBoxCardType>("");
+// const triggerBoxCard = (t: SentenceBoxCardType, modal: boolean) => {
+//   type.value = t;
+//   if (modal) showModal.value = !showModal.value;
+// };
 
 const list = ref<Sentence[]>([]);
 const listLoading = ref(false);
 
-const updateSentence = (idx: number, modal: boolean) => {
-  updateFormValue.value = {
-    ...list.value[idx],
-    idx,
-  };
-  triggerBoxCard("update", modal);
-};
+// const updateSentence = (idx: number, modal: boolean) => {
+//   updateFormValue.value = {
+//     ...list.value[idx],
+//     idx,
+//   };
+//   triggerBoxCard("update", modal);
+// };
 
 const createSuccess = (item: Sentence) => {
-  list.value.splice(0, 0, item);
+  list.value = [item, ...list.value];
+  console.log("closeModal", sentenceStore.closeModal);
+  sentenceStore.closeModal();
 };
 const updateSuccess = (item: Sentence & { idx: number | null }) => {
   const { idx, ...data } = item;
-  console.log("data", list.value);
-  try {
-    if (typeof idx === "number")
-      list.value = [
-        ...list.value.slice(0, idx),
-        data,
-        ...list.value.slice(idx + 1, -1),
-      ];
-  } catch (err) {
-    console.log("err", err);
+  if (typeof idx === "number") {
+    list.value = [
+      ...list.value.slice(0, idx),
+      data,
+      ...list.value.slice(idx + 1, -1),
+    ];
   }
+  sentenceStore.closeModal();
 };
 
-const { mutate, loading } = useRemoveSentence({
-  onDone: () => {
-    message.success("刪除成功");
-  },
-});
-const deleteSentence = async (idx: number) => {
-  const { sentenceUid } = list.value[idx];
-  await mutate({ sentenceUid });
-  list.value.splice(idx, 1);
-};
-
-const showModal = ref(false);
+// const { mutate, loading } = useRemoveSentence({
+//   onDone: () => {
+//     message.success("刪除成功");
+//   },
+// });
+// const deleteSentence = async (idx: number) => {
+//   const { sentenceUid } = list.value[idx];
+//   await mutate({ sentenceUid });
+//   list.value.splice(idx, 1);
+// };
 
 const keyword = ref("");
 const searchWithKeyword = () => {
@@ -93,19 +92,17 @@ const searchWithKeyword = () => {
       class="px-4"
       v-model:list="list"
       v-model:loading="listLoading"
-      @update="updateSentence"
-      @delete="deleteSentence"
     ></SentenceList>
     <NModal v-model:show="showModal" preset="card" class="max-w-600px">
       <SentenceCreateBox
-        v-if="type === 'create'"
+        v-if="modalType === 'create'"
         :border="false"
         @success="createSuccess"
       ></SentenceCreateBox>
       <SentenceEditBox
-        v-else-if="type === 'update'"
+        v-else-if="modalType === 'update'"
         v-model:form-value="updateFormValue"
-        :init="updateFormValueInit"
+        :init="sentenceStore.updateFormValueInit"
         :border="false"
         @success="updateSuccess"
       ></SentenceEditBox>

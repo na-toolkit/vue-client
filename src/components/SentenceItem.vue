@@ -1,6 +1,12 @@
 <script setup lang="ts">
 import { toRef, computed, ref } from "vue";
-import { NButton, NIcon, NDivider } from "naive-ui";
+import {
+  NButton,
+  NIcon,
+  NDivider,
+  NCollapseTransition,
+  NPopconfirm,
+} from "naive-ui";
 import {
   EditCircle,
   Trash,
@@ -11,6 +17,7 @@ import {
 import BoxCard from "./BoxCard.vue";
 import type { Sentence } from "@/types/sentence";
 import { useMessage } from "naive-ui";
+import { useClipboard } from "@vueuse/core";
 
 const message = useMessage();
 
@@ -34,26 +41,20 @@ const sentenceList = computed(() =>
 //   else mark.value.splice(item, 1);
 // };
 
-const emit = defineEmits<{
-  (e: "update", modal: boolean): void;
+defineEmits<{
+  (e: "updateWithModal"): void;
   (e: "delete"): void;
 }>();
-
-const triggerUpdate = (modal: boolean) => {
-  emit("update", modal);
-};
-const triggerDelete = () => {
-  emit("delete");
-};
 
 const showNote = ref(false);
 const triggerNote = () => {
   if (item.value.note) showNote.value = !showNote.value;
 };
 
+const { copy: copyPromise } = useClipboard();
 const copy = async (sentence: string) => {
   try {
-    await navigator.clipboard.writeText(sentence);
+    await copyPromise(sentence);
     message.success("複製成功");
   } catch (err) {
     message.error(`複製失敗: ${(err as Error).message}`);
@@ -61,7 +62,7 @@ const copy = async (sentence: string) => {
 };
 </script>
 <template>
-  <BoxCard :class="{ 'cursor-pointer': item.note }">
+  <BoxCard>
     <div class="flex gap-1">
       <div class="flex-grow-1">
         <div
@@ -92,26 +93,25 @@ const copy = async (sentence: string) => {
         </div>
         <div>{{ item.translation }}</div>
         <div v-if="item.note" class="mb--.75rem flex justify-center">
-          <NIcon class="p-2" @click="triggerNote">
+          <NIcon class="cursor-pointer px-2 py-1" @click="triggerNote">
             <ChevronUp v-if="showNote"></ChevronUp>
             <ChevronDown v-else></ChevronDown>
           </NIcon>
         </div>
-        <div
-          class="overflow-hidden transition-max-height duration-300 ease-in-out"
-          v-if="item.note"
-          :style="{
-            maxHeight: showNote ? '500px' : '0',
-          }"
-        >
-          <NDivider dashed>NOTE</NDivider>
+        <NCollapseTransition :show="showNote">
           <div
-            class="whitespace-pre-wrap text-white-mute"
-            @click.stop="() => {}"
+            class="overflow-hidden transition-max-height duration-300 ease-in-out"
+            v-if="item.note"
           >
-            {{ item.note }}
+            <NDivider dashed>NOTE</NDivider>
+            <div
+              class="whitespace-pre-wrap text-white-mute"
+              @click.stop="() => {}"
+            >
+              {{ item.note }}
+            </div>
           </div>
-        </div>
+        </NCollapseTransition>
       </div>
       <div class="grid auto-rows-min gap-2">
         <NButton
@@ -119,7 +119,7 @@ const copy = async (sentence: string) => {
           :size="'large'"
           :text="true"
           class="h-6 w-6"
-          @click="() => triggerUpdate(true)"
+          @click="() => $emit('updateWithModal')"
         >
           <template #icon>
             <NIcon size="24"><EditCircle></EditCircle></NIcon>
@@ -136,18 +136,26 @@ const copy = async (sentence: string) => {
             <NIcon size="24"><EditCircle></EditCircle></NIcon>
           </template>
         </NButton> -->
-        <NButton
-          :circle="true"
-          :size="'large'"
-          :text="true"
-          class="h-6 w-6"
-          type="error"
-          @click="triggerDelete"
-        >
-          <template #icon>
-            <NIcon size="24"><Trash></Trash></NIcon>
+        <NPopconfirm :negative-text="null" :show-icon="false">
+          <template #trigger>
+            <NButton
+              :circle="true"
+              :size="'large'"
+              :text="true"
+              class="h-6 w-6"
+              type="error"
+            >
+              <template #icon>
+                <NIcon size="24"><Trash></Trash></NIcon>
+              </template>
+            </NButton>
           </template>
-        </NButton>
+          <template #action>
+            <NButton :type="'error'" @click="() => $emit('delete')"
+              >刪除</NButton
+            >
+          </template>
+        </NPopconfirm>
       </div>
     </div>
   </BoxCard>

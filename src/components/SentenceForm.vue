@@ -12,7 +12,6 @@ import {
   type FormRules,
 } from "naive-ui";
 import type { Sentence } from "@/types/sentence";
-import { ArrowsDiagonalMinimize2 } from "@vicons/tabler";
 
 type FormSentence = Omit<Sentence, "sentenceUid">;
 
@@ -21,15 +20,11 @@ const props = withDefaults(
     loading: boolean;
     label: string;
     formValue: FormSentence;
-    showMinimize?: boolean;
   }>(),
-  {
-    showMinimize: false,
-  }
+  {}
 );
 const emit = defineEmits<{
   (e: "submit"): void;
-  (e: "minimize"): void;
   (e: "update:formValue", value: FormSentence): void;
 }>();
 
@@ -54,30 +49,16 @@ const submit = async () => {
   }
   emit("submit");
 };
-
-const showMinimize = toRef(props, "showMinimize");
 </script>
 <template>
   <div class="flex flex-col items-end">
-    <NButton
-      v-if="showMinimize"
-      class="m-b-2 m-t--2"
-      :circle="true"
-      :size="'large'"
-      :text="true"
-      @click="() => emit('minimize')"
-    >
-      <template #icon>
-        <NIcon><ArrowsDiagonalMinimize2></ArrowsDiagonalMinimize2></NIcon>
-      </template>
-    </NButton>
     <NForm
       ref="formRef"
       :model="formValue"
       :show-label="false"
       :show-feedback="false"
       :rules="rules"
-      class="grid gap-4 w-full"
+      class="grid w-full gap-4"
     >
       <NFormItem path="content">
         <NInput
