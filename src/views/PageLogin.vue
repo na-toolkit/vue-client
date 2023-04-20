@@ -2,11 +2,8 @@
 import {
   NInput,
   NInputGroup,
-  NButton,
-  NIcon,
   NForm,
   NFormItem,
-  NSpin,
   useMessage,
   type FormRules,
   type FormInst,
@@ -16,15 +13,18 @@ import { Plus, Login } from "@vicons/tabler";
 import { useRouter } from "vue-router";
 import { useMutateLogin } from "@/apis/login";
 import { useUserStore } from "@/stores/user";
+import ButtonIcon from "@/components/ButtonIcon.vue";
+import { routeNameJumpTo } from "@/utils/routeJumpTo";
 
 const router = useRouter();
+const jumpTo = routeNameJumpTo(router);
 const message = useMessage();
 const userStore = useUserStore();
 const { mutate, loading } = useMutateLogin({
   async onDone(result) {
     const { accessToken, expiresIn: expiredAt } = result;
     await userStore.actionLoginSuccess({ accessToken, expiredAt });
-    router.push({ name: "dashboard" });
+    jumpTo("Dashboard");
   },
 });
 
@@ -60,10 +60,6 @@ const login = async () => {
     input: { account: username, passwordInput: password },
   });
 };
-
-const jumpTo = (name: string) => {
-  router.push({ name });
-};
 </script>
 <template>
   <section class="grid h-full w-full">
@@ -86,40 +82,23 @@ const jumpTo = (name: string) => {
           </NInput>
         </NFormItem>
         <NFormItem path="password">
-          <NInputGroup>
+          <NInputGroup class="justify-around gap-2">
             <NInput
               v-model:value="formValue.password"
               type="password"
-              show-password-on="mousedown"
+              show-password-on="click"
               size="large"
               placeholder="密碼"
-              class="mr-4"
               @keyup.enter="login"
             >
               <template #prefix> > </template>
             </NInput>
-            <NButton
-              text
-              type="success"
-              size="large"
-              class="mr-2"
-              @click="login"
-            >
-              <template #icon>
-                <NSpin v-if="loading" :size="'small'"></NSpin>
-                <NIcon v-else><Login></Login></NIcon>
-              </template>
-            </NButton>
-            <NButton
-              text
-              type="success"
-              size="large"
-              @click="() => jumpTo('register')"
-            >
-              <template #icon>
-                <NIcon><Plus></Plus></NIcon>
-              </template>
-            </NButton>
+            <ButtonIcon :loading="loading" @click="login">
+              <Login></Login>
+            </ButtonIcon>
+            <ButtonIcon @click="() => jumpTo('Register')">
+              <Plus></Plus
+            ></ButtonIcon>
           </NInputGroup>
         </NFormItem>
       </NForm>

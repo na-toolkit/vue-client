@@ -1,7 +1,13 @@
 <script setup lang="ts">
 import { toRef, computed, ref } from "vue";
 import { NButton, NIcon, NDivider } from "naive-ui";
-import { EditCircle, Trash, ChevronDown, Copy } from "@vicons/tabler";
+import {
+  EditCircle,
+  Trash,
+  ChevronDown,
+  ChevronUp,
+  Copy,
+} from "@vicons/tabler";
 import BoxCard from "./BoxCard.vue";
 import type { Sentence } from "@/types/sentence";
 import { useMessage } from "naive-ui";
@@ -20,13 +26,13 @@ const sentenceList = computed(() =>
     copy: c,
   }))
 );
-const mark = ref<string[]>([]);
+// const mark = ref<string[]>([]);
 
-const markWord = (key: string) => {
-  const item = mark.value.findIndex((v) => v === key);
-  if (item === -1) mark.value.push(key);
-  else mark.value.splice(item, 1);
-};
+// const markWord = (key: string) => {
+//   const item = mark.value.findIndex((v) => v === key);
+//   if (item === -1) mark.value.push(key);
+//   else mark.value.splice(item, 1);
+// };
 
 const emit = defineEmits<{
   (e: "update", modal: boolean): void;
@@ -55,18 +61,18 @@ const copy = async (sentence: string) => {
 };
 </script>
 <template>
-  <BoxCard :class="{ 'cursor-pointer': item.note }" @click="triggerNote">
-    <div class="flex">
+  <BoxCard :class="{ 'cursor-pointer': item.note }">
+    <div class="flex gap-1">
       <div class="flex-grow-1">
         <div
           v-for="list in sentenceList"
           :key="list.key"
           class="flex flex-wrap items-center"
         >
-          <span
+          <!-- <span
             v-for="sentence in list.sentence"
             :key="sentence.key"
-            class="px-1px mx-1px sm:mx-2px cursor-pointer rounded ease-in-out hover:shadow-word hover:shadow-current"
+            class="mx-1px cursor-pointer rounded px-1px ease-in-out sm:mx-2px hover:shadow-current hover:shadow-word"
             :class="{
               'shadow-word': mark.includes(sentence.key),
               'shadow-current': mark.includes(sentence.key),
@@ -74,12 +80,23 @@ const copy = async (sentence: string) => {
             @click.stop="() => markWord(sentence.key)"
           >
             {{ sentence.word }}
-          </span>
-          <NIcon class="cursor-pointer" @click.stop="() => copy(list.copy)"
-            ><Copy></Copy
-          ></NIcon>
+          </span> -->
+          <div>
+            {{ list.copy }}
+            <NIcon
+              class="m-l-1 cursor-pointer"
+              @click.stop="() => copy(list.copy)"
+              ><Copy></Copy
+            ></NIcon>
+          </div>
         </div>
         <div>{{ item.translation }}</div>
+        <div v-if="item.note" class="mb--.75rem flex justify-center">
+          <NIcon class="p-2" @click="triggerNote">
+            <ChevronUp v-if="showNote"></ChevronUp>
+            <ChevronDown v-else></ChevronDown>
+          </NIcon>
+        </div>
         <div
           class="overflow-hidden transition-max-height duration-300 ease-in-out"
           v-if="item.note"
@@ -88,7 +105,10 @@ const copy = async (sentence: string) => {
           }"
         >
           <NDivider dashed>NOTE</NDivider>
-          <div class="whitespace-pre-wrap text-white-mute">
+          <div
+            class="whitespace-pre-wrap text-white-mute"
+            @click.stop="() => {}"
+          >
             {{ item.note }}
           </div>
         </div>
@@ -98,29 +118,29 @@ const copy = async (sentence: string) => {
           :circle="true"
           :size="'large'"
           :text="true"
-          class="w-6 h-6 sm:hidden"
+          class="h-6 w-6"
           @click="() => triggerUpdate(true)"
         >
           <template #icon>
             <NIcon size="24"><EditCircle></EditCircle></NIcon>
           </template>
         </NButton>
-        <NButton
+        <!-- <NButton
           :circle="true"
           :size="'large'"
           :text="true"
-          class="w-6 h-6 hidden sm:inline-flex"
+          class="hidden h-6 w-6 sm:inline-flex"
           @click="() => triggerUpdate(false)"
         >
           <template #icon>
             <NIcon size="24"><EditCircle></EditCircle></NIcon>
           </template>
-        </NButton>
+        </NButton> -->
         <NButton
           :circle="true"
           :size="'large'"
           :text="true"
-          class="w-6 h-6"
+          class="h-6 w-6"
           type="error"
           @click="triggerDelete"
         >
@@ -129,16 +149,6 @@ const copy = async (sentence: string) => {
           </template>
         </NButton>
       </div>
-    </div>
-    <div
-      v-if="item.note"
-      class="flex justify-center transition-opacity duration-300 ease-in-out delay-75 mb--.75rem"
-      :style="{
-        visibility: showNote ? 'hidden' : 'visible',
-        opacity: showNote ? 0 : 1,
-      }"
-    >
-      <NIcon><ChevronDown></ChevronDown></NIcon>
     </div>
   </BoxCard>
 </template>

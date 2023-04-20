@@ -14,14 +14,10 @@ const themeOverrides: GlobalThemeOverrides = {};
   <NConfigProvider
     :theme="darkTheme"
     :theme-overrides="themeOverrides"
-    class="w-full h-full"
+    class="h-full w-full"
   >
     <NMessageProvider>
-      <article
-        class="w-full h-full text-white-primary grid grid-rows-[60px_minmax(0,1fr)_40px]"
-      >
-        <RouterView></RouterView>
-      </article>
+      <RouterView></RouterView>
     </NMessageProvider>
   </NConfigProvider>
 </template>

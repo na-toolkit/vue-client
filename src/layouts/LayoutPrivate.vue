@@ -1,7 +1,6 @@
 <script setup lang="ts">
 import { watch } from "vue";
 import LayoutHeader from "./LayoutHeader.vue";
-import LayoutFooter from "./LayoutFooter.vue";
 import { useUserStore } from "@/stores/user";
 import { checkAuthTokenValid } from "@/utils/checkAuthTokenValid";
 import { useWhoami } from "@/apis/whoami";
@@ -25,10 +24,12 @@ watch(
 );
 </script>
 <template>
-  <LayoutHeader v-if="userStore.userTokenValid"></LayoutHeader>
-  <header v-else></header>
-  <article class="text-white-primary text-4 overflow-y-scroll">
-    <RouterView></RouterView>
+  <article
+    class="grid grid-rows-[60px_minmax(0,1fr)] h-full w-full text-white-primary"
+  >
+    <LayoutHeader></LayoutHeader>
+    <article class="h-full text-4 text-white-primary">
+      <RouterView></RouterView>
+    </article>
   </article>
-  <LayoutFooter></LayoutFooter>
 </template>

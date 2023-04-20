@@ -10,7 +10,7 @@ import {
   NInputGroup,
 } from "naive-ui";
 import { useGetSentenceList, useRemoveSentence } from "@/apis/sentence";
-import { PlaylistAdd, Plus, Search } from "@vicons/tabler";
+import { PlaylistAdd, Search } from "@vicons/tabler";
 import SentenceCreateBox from "@/components/SentenceCreateBox.vue";
 import SentenceEditBox from "@/components/SentenceEditBox.vue";
 import SentenceList from "@/components/SentenceList.vue";
@@ -37,62 +37,8 @@ const triggerBoxCard = (t: SentenceBoxCardType, modal: boolean) => {
 };
 
 const list = ref<Sentence[]>([]);
-const total = ref(0);
-const listVariables = ref({
-  keyword: "",
-  paginationInfo: {
-    currentPage: 1,
-    pageSize: 20,
-  },
-});
-const {
-  result,
-  loading: listLoading,
-  error: listError,
-  fetchMore,
-  refetch: listRefetch,
-} = useGetSentenceList({
-  input: listVariables.value,
-});
-watch(
-  result,
-  (v) => {
-    if (v) {
-      const {
-        data,
-        paginationInfo: { currentPage, total: totalResult },
-      } = v.getSentenceList;
-      total.value = totalResult;
-      if (currentPage !== 1) list.value = [...list.value, ...data];
-      else list.value = [...data];
-    }
-  },
-  { immediate: true }
-);
-// list.value = [
-//   {
-//     content:
-//       "But how does it feel on the flip side when you don’t\n get any notifications",
-//     sentenceUid: "A0k6XKckl7ihvoaeFyl88",
-//     translation: "一些中文翻譯",
-//     note: "備註",
-//   },
-// ];
-// const listLoading = false;
+const listLoading = ref(false);
 
-const scrollEl = ref<HTMLElement | null>(null);
-useInfiniteScroll(
-  scrollEl,
-  () => {
-    if (
-      total.value >
-      listVariables.value.paginationInfo.currentPage *
-        listVariables.value.paginationInfo.pageSize
-    )
-      listVariables.value.paginationInfo.currentPage += 1;
-  },
-  { distance: 10 }
-);
 const updateSentence = (idx: number, modal: boolean) => {
   updateFormValue.value = {
     ...list.value[idx],
@@ -106,7 +52,17 @@ const createSuccess = (item: Sentence) => {
 };
 const updateSuccess = (item: Sentence & { idx: number | null }) => {
   const { idx, ...data } = item;
-  if (typeof idx === "number") list.value.splice(idx, 1, data);
+  console.log("data", list.value);
+  try {
+    if (typeof idx === "number")
+      list.value = [
+        ...list.value.slice(0, idx),
+        data,
+        ...list.value.slice(idx + 1, -1),
+      ];
+  } catch (err) {
+    console.log("err", err);
+  }
 };
 
 const { mutate, loading } = useRemoveSentence({
@@ -124,26 +80,45 @@ const showModal = ref(false);
 
 const keyword = ref("");
 const searchWithKeyword = () => {
-  if (keyword.value !== listVariables.value.keyword) {
-    list.value = [];
-    listVariables.value.keyword = keyword.value;
-    listVariables.value.paginationInfo.currentPage = 1;
-  }
+  // if (keyword.value !== listVariables.value.keyword) {
+  //   list.value = [];
+  //   listVariables.value.keyword = keyword.value;
+  //   listVariables.value.paginationInfo.currentPage = 1;
+  // }
 };
 </script>
 <template>
-  <section class="h-100% w-100% overflow-y-scroll" ref="scrollEl">
-    <div class="sm:grid sm:grid-cols-[minmax(0,3fr)_minmax(0,2fr)] sm:gap-4">
-      <div
-        class="mx-4 mt-4 flex items-center justify-center border-1 border-gray-dark-1 border-style-solid p-2 sm:hidden"
-        @click="() => triggerBoxCard('create', true)"
-      >
-        <NIcon size="30"><Plus></Plus></NIcon>
-      </div>
+  <section id="dashboard" class="h-full w-full overflow-hidden">
+    <SentenceList
+      class="px-4"
+      v-model:list="list"
+      v-model:loading="listLoading"
+      @update="updateSentence"
+      @delete="deleteSentence"
+    ></SentenceList>
+    <NModal v-model:show="showModal" preset="card" class="max-w-600px">
+      <SentenceCreateBox
+        v-if="type === 'create'"
+        :border="false"
+        @success="createSuccess"
+      ></SentenceCreateBox>
+      <SentenceEditBox
+        v-else-if="type === 'update'"
+        v-model:form-value="updateFormValue"
+        :init="updateFormValueInit"
+        :border="false"
+        @success="updateSuccess"
+      ></SentenceEditBox>
+    </NModal>
+  </section>
+  <!-- <section class="h-full w-full overflow-hidden">
+    <div
+      class="h-full sm:grid sm:grid-cols-[minmax(0,3fr)_minmax(0,2fr)] sm:gap-4"
+    >
       <SentenceList
         class="px-4"
-        :list="list"
-        :loading="listLoading"
+        v-model:list="list"
+        v-model:loading="listLoading"
         @update="updateSentence"
         @delete="deleteSentence"
       ></SentenceList>
@@ -187,6 +162,7 @@ const searchWithKeyword = () => {
           ></SentenceEditBox>
         </div>
       </div>
+      <slot name="footer"></slot>
     </div>
     <NModal class="sm:hidden" v-model:show="showModal" preset="card">
       <SentenceCreateBox
@@ -202,5 +178,5 @@ const searchWithKeyword = () => {
         @success="updateSuccess"
       ></SentenceEditBox>
     </NModal>
-  </section>
+  </section> -->
 </template>

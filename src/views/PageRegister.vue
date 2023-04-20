@@ -16,13 +16,15 @@ import { Plus, Login } from "@vicons/tabler";
 import { useRouter } from "vue-router";
 import { useMutationRegister } from "@/apis/login";
 import { useUserStore } from "@/stores/user";
+import { routeNameJumpTo } from "@/utils/routeJumpTo";
 
 const router = useRouter();
+const jumpTo = routeNameJumpTo(router);
 const message = useMessage();
 const userStore = useUserStore();
 const { mutate, loading } = useMutationRegister({
   async onDone(result) {
-    if (result) router.push({ name: "login" });
+    if (result) jumpTo("Login");
   },
 });
 
@@ -66,13 +68,9 @@ const register = async () => {
     input: { account: username, name, code, passwordInput: password },
   });
 };
-
-const jumpTo = (name: string) => {
-  router.push({ name });
-};
 </script>
 <template>
-  <section class="h-full w-full grid">
+  <section class="grid h-full w-full">
     <div class="login-box">
       <NForm
         ref="formRef"
@@ -138,7 +136,7 @@ const jumpTo = (name: string) => {
               text
               type="success"
               size="large"
-              @click="() => jumpTo('login')"
+              @click="() => jumpTo('Login')"
             >
               <template #icon>
                 <NIcon><Login></Login></NIcon>
