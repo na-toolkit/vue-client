@@ -102,7 +102,7 @@ const deleteSentence = async (idx: number) => {
 </script>
 <template>
   <div class="h-full overflow-y-scroll" ref="scrollEl">
-    <div class="grid max-w-1024px gap-8 p-y-4">
+    <div class="grid max-w-1200px gap-8 p-y-4">
       <SentenceItem
         v-for="(item, idx) in list"
         :key="item.sentenceUid"

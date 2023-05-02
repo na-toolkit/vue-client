@@ -1,8 +1,8 @@
 name: deploy
 on:
   push:
-    tags:
-      - 'v[0-9]+.[0-9]+.[0-9]+'
+    branches:
+      - master
 jobs:
   call-in-progress-notify:
     uses: ./.github/workflows/inProgressNotify.yml
