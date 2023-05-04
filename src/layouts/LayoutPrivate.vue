@@ -40,7 +40,6 @@ watch(
     </div>
     <LayoutHeader></LayoutHeader>
     <article class="h-full text-4 text-white-primary">
-      <NButton>sdfs</NButton>
       <RouterView></RouterView>
     </article>
   </article>
