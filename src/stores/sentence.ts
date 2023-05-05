@@ -29,6 +29,8 @@ export const useSentenceStore = defineStore("sentence", () => {
     showModal.value = false;
   };
 
+  const review = ref(false);
+
   return {
     showModal,
     modalType: readonly(modalType),
@@ -37,5 +39,6 @@ export const useSentenceStore = defineStore("sentence", () => {
     openCreateModal,
     openUpdateModal,
     closeModal,
+    review,
   };
 });

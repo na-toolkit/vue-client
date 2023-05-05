@@ -2,11 +2,12 @@
 import { defineProps, withDefaults, toRefs, ref, watch, computed } from "vue";
 import { useInfiniteScroll } from "@vueuse/core";
 import SentenceItem from "../SentenceItem.vue";
-import { NSkeleton, useMessage } from "naive-ui";
+import { NSkeleton, useMessage, NSwitch } from "naive-ui";
 import type { Sentence } from "@/types/sentence";
 import { useGetSentenceList, useRemoveSentence } from "@/apis/sentence";
 import { throttle } from "lodash-es";
 import { useSentenceStore } from "@/stores/sentence";
+import { storeToRefs } from "pinia";
 
 const message = useMessage();
 
@@ -25,6 +26,8 @@ const emit = defineEmits<{
 const { list, loading } = toRefs(props);
 
 const sentenceStore = useSentenceStore();
+
+const { review } = storeToRefs(sentenceStore);
 
 const total = ref(0);
 const listVariables = ref({
@@ -102,6 +105,9 @@ const deleteSentence = async (idx: number) => {
 </script>
 <template>
   <div class="h-full overflow-y-scroll" ref="scrollEl">
+    <div class="mt-2">
+      <NSwitch v-model:value="review" :round="false"></NSwitch>
+    </div>
     <div class="grid max-w-1200px gap-8 p-y-4">
       <SentenceItem
         v-for="(item, idx) in list"
